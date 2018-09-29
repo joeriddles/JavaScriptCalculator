@@ -22,31 +22,34 @@ function submitOperator(operator) {
         evaluate();
     }
     var value = parseFloat(calculator.output.value);
-
-    calculator.value = value;
-    calculator.expression.innerText = calculator.value + " " + operator + " ";
-    calculator.lastValue = value;
-    calculator.lastOperator = operator;
-    calculator.containsOperator = true;
-    calculator.newValue = true;
-    calculator.containsPeriod = false;
+    if (value !== "") {
+        calculator.value = value;
+        calculator.expression.innerText = calculator.value + " " + operator + " ";
+        calculator.lastValue = value;
+        calculator.lastOperator = operator;
+        calculator.containsOperator = true;
+        calculator.newValue = true;
+        calculator.containsPeriod = false;
+    }
 }
 
 function btnSubmitSqrt_Click() {
     var value = parseFloat(calculator.output.value);
-    setValue(Math.sqrt(value));
+    if (value !== "")
+        setValue(Math.sqrt(value));
 }
 
 function btnSubmitRecip_Click() {
     var value = parseFloat(calculator.output.value);
-    setValue(1 / value);
+    if (value !== "")
+        setValue(1 / value);
 }
 
 function btnSubmitPercent_Click() {
     var value = parseFloat(calculator.output.value);
     var percentOf = parseFloat(calculator.expression.innerText);
-
-    calculator.output.value = (value / 100) * percentOf;
+    if (value !== "" && !isNaN(percentOf))
+        calculator.output.value = (value / 100) * percentOf;
 }
 
 function setValue(value) {
@@ -59,11 +62,12 @@ function setValue(value) {
 }
 
 function btnSubmitDecimal_Click() {
-    if(!calculator.containsPeriod) {
-        if (calculator.newValue) {
-            calculator.output.value = "0";
-            calculator.newValue = false;
-        }
+    if (calculator.newValue) {
+        calculator.output.value = "0.";
+        calculator.newValue = false;
+        calculator.containsPeriod = true;
+    }
+    else if(!calculator.containsPeriod) {
         calculator.output.value += ".";
         calculator.containsPeriod = true;
     }
@@ -91,9 +95,7 @@ function btnSubmitEqual_Click() {
     if (calculator.containsOperator)
         evaluate();
     else if (calculator.lastOperator !== "") {
-        submitOperator(calculator.lastOperator);
-        calculator.output.value = calculator.lastValue;
-        evaluate();
+        evaluateLastOperator();
     }
 }
 
@@ -112,7 +114,28 @@ function evaluate() {
                     break;
         case "/":   c = a / b;
                     break;
-        }
+    }
+
+    calculator.value = c;
+    calculator.output.value = c;
+    calculator.expression.innerText = c;
+    calculator.containsOperator = false;
+}
+
+function evaluateLastOperator() {
+    var a = parseFloat(calculator.expression.innerText);
+    var b = calculator.lastValue;
+    var c;
+    switch(calculator.lastOperator) {
+        case "+":   c = a + b;  
+                    break;
+        case "-":   c = a - b;
+                    break;
+        case "*":   c = a * b;
+                    break;
+        case "/":   c = a / b;
+                    break;
+    }
 
     calculator.value = c;
     calculator.output.value = c;
